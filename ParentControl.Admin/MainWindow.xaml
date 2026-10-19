@@ -1,0 +1,620 @@
+<Window x:Class="ParentControl.Admin.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="ParentControl Admin" Width="1180" Height="820" MinWidth="950" MinHeight="650"
+        Background="#F3F1EA" FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14"
+        UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display"
+        WindowStyle="None" ResizeMode="CanResize" WindowStartupLocation="CenterScreen">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="4" GlassFrameThickness="0" CornerRadius="14" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+    <Window.Resources>
+        <SolidColorBrush x:Key="Ink" Color="#1A2929"/>
+        <SolidColorBrush x:Key="Muted" Color="#657370"/>
+        <ImageBrush x:Key="Grain" ImageSource="/ParentControl.Admin;component/Assets/grain.png" TileMode="Tile" ViewportUnits="Absolute"
+                    Viewport="0,0,96,96" Stretch="Fill" Opacity="0.8"/>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#225B62"/><Setter Property="Foreground" Value="#FBFCF8"/>
+            <Setter Property="BorderBrush" Value="#1B4D53"/><Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="17,11"/>
+            <Setter Property="Margin" Value="0,0,8,8"/><Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="Shadow" Background="{TemplateBinding Background}" CornerRadius="14">
+                            <Border.Effect><DropShadowEffect Color="#263C3A" BlurRadius="9" ShadowDepth="2" Opacity="0.11"/></Border.Effect>
+                        </Border>
+                        <Border x:Name="Body" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="14" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Body" Property="Opacity" Value="0.88"/><Setter TargetName="Shadow" Property="Opacity" Value="0.88"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Body" Property="Opacity" Value="0.72"/><Setter TargetName="Shadow" Property="Opacity" Value="0.72"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Body" Property="Opacity" Value="0.46"/><Setter TargetName="Shadow" Property="Opacity" Value="0.46"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SoftButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#E8EEEA"/><Setter Property="Foreground" Value="#275259"/>
+            <Setter Property="BorderBrush" Value="#D8E2DC"/>
+        </Style>
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#93564E"/><Setter Property="BorderBrush" Value="#844A43"/>
+        </Style>
+        <Style x:Key="WindowAction" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Width" Value="34"/><Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="2,0,2,0"/>
+            <Setter Property="Background" Value="#E8EEEA"/><Setter Property="Foreground" Value="#225B62"/>
+            <Setter Property="BorderBrush" Value="#D8E2DC"/>
+            <Setter Property="FontSize" Value="20"/><Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style x:Key="TimeModeOption" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#315D61"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RadioButton">
+                <Border x:Name="Chip" Background="#E8EEEA" BorderBrush="#D8E2DC"
+                        BorderThickness="1" CornerRadius="11" Padding="14,9">
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsChecked" Value="True">
+                        <Setter TargetName="Chip" Property="Background" Value="#225B62"/>
+                        <Setter TargetName="Chip" Property="BorderBrush" Value="#1B4D53"/>
+                        <Setter Property="Foreground" Value="#FBFCF8"/>
+                    </Trigger>
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="IsChecked" Value="True"/>
+                            <Condition Property="Tag" Value="Subtract"/>
+                        </MultiTrigger.Conditions>
+                        <Setter TargetName="Chip" Property="Background" Value="#93564E"/>
+                        <Setter TargetName="Chip" Property="BorderBrush" Value="#844A43"/>
+                    </MultiTrigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="Chip" Property="Opacity" Value="0.88"/>
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style x:Key="TimeSlider" TargetType="Slider">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="Slider">
+                    <Grid Height="34">
+                        <Border Height="8" Background="#DCE7E1" CornerRadius="4" VerticalAlignment="Center"/>
+                        <Track x:Name="PART_Track" Height="28" VerticalAlignment="Center"
+                               Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+                               Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Focusable="False">
+                                    <RepeatButton.Template><ControlTemplate TargetType="RepeatButton">
+                                        <Border Height="8" Background="#287C83" CornerRadius="4" VerticalAlignment="Center"/>
+                                    </ControlTemplate></RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="28" Height="28">
+                                    <Thumb.Template><ControlTemplate TargetType="Thumb">
+                                        <Grid Width="28" Height="28">
+                                            <Ellipse Fill="#FBFCF8" Stroke="#287C83" StrokeThickness="3">
+                                                <Ellipse.Effect><DropShadowEffect Color="#225B62" BlurRadius="9" ShadowDepth="2" Opacity="0.21"/></Ellipse.Effect>
+                                            </Ellipse>
+                                            <Ellipse Width="7" Height="7" Fill="#287C83"/>
+                                        </Grid>
+                                    </ControlTemplate></Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Focusable="False">
+                                    <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ScrollBar">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="ScrollBar">
+                    <Grid Width="12" Background="Transparent">
+                        <Border Width="4" Margin="0,3" CornerRadius="2" Background="#DEE7E1" HorizontalAlignment="Center"/>
+                        <Track x:Name="PART_Track" IsDirectionReversed="True" Orientation="Vertical"
+                               Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+                               ViewportSize="{TemplateBinding ViewportSize}"
+                               Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Focusable="False">
+                                    <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb MinHeight="28" Width="10">
+                                    <Thumb.Template><ControlTemplate TargetType="Thumb">
+                                        <Border x:Name="Pill" Margin="2,1" CornerRadius="5" Background="#A1BBB5"/>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Pill" Property="Background" Value="#287C83"/></Trigger>
+                                            <Trigger Property="IsDragging" Value="True"><Setter TargetName="Pill" Property="Background" Value="#287C83"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate></Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Focusable="False">
+                                    <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Width" Value="Auto"/>
+                    <Setter Property="Height" Value="12"/>
+                    <Setter Property="Template">
+                        <Setter.Value><ControlTemplate TargetType="ScrollBar">
+                            <Grid Height="12" Background="Transparent">
+                                <Border Height="4" Margin="3,0" CornerRadius="2" Background="#DEE7E1"
+                                        VerticalAlignment="Center"/>
+                                <Track x:Name="PART_Track" Orientation="Horizontal" IsDirectionReversed="False"
+                                       Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+                                       ViewportSize="{TemplateBinding ViewportSize}"
+                                       Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Command="{x:Static ScrollBar.PageLeftCommand}" Focusable="False">
+                                            <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template>
+                                        </RepeatButton>
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb MinWidth="28" Height="10">
+                                            <Thumb.Template><ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="Pill" Margin="1,2" CornerRadius="5" Background="#A1BBB5"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Pill" Property="Background" Value="#287C83"/></Trigger>
+                                                    <Trigger Property="IsDragging" Value="True"><Setter TargetName="Pill" Property="Background" Value="#287C83"/></Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate></Thumb.Template></Thumb>
+                                    </Track.Thumb>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Command="{x:Static ScrollBar.PageRightCommand}" Focusable="False">
+                                            <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template>
+                                        </RepeatButton>
+                                    </Track.IncreaseRepeatButton>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate></Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#F8FAF6"/><Setter Property="Foreground" Value="#1A2929"/>
+            <Setter Property="BorderBrush" Value="#D7E0DA"/><Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,10"/><Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="TextBox">
+                    <Border x:Name="FieldBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="12">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="FieldBorder" Property="BorderBrush" Value="#287C83"/><Setter TargetName="FieldBorder" Property="BorderThickness" Value="2"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Background" Value="#F8FAF6"/><Setter Property="Foreground" Value="#1A2929"/>
+            <Setter Property="BorderBrush" Value="#D7E0DA"/><Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,10"/><Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="PasswordBox">
+                <Border x:Name="FieldBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="12">
+                    <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                </Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="FieldBorder" Property="BorderBrush" Value="#287C83"/><Setter TargetName="FieldBorder" Property="BorderThickness" Value="2"/></Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#F8FAF6"/><Setter Property="Foreground" Value="#1A2929"/>
+            <Setter Property="BorderBrush" Value="#D7E0DA"/><Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
+                <Grid>
+                    <Border x:Name="Shell" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="12">
+                        <Grid>
+                            <ContentPresenter Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              Margin="13,0,32,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                            <Path Data="M 0,0 L 5,5 L 10,0" Stroke="#315E62" StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Width="10" Height="5" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        </Grid>
+                    </Border>
+                    <ToggleButton Focusable="False" Background="Transparent" BorderThickness="0"
+                                  IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                        <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="Transparent"/></ControlTemplate></ToggleButton.Template>
+                    </ToggleButton>
+                    <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False"
+                           IsOpen="{TemplateBinding IsDropDownOpen}">
+                        <Border Background="#FFFEFA" BorderBrush="#D7E0DA" BorderThickness="1" CornerRadius="12"
+                                MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Border.Effect><DropShadowEffect Color="#263C3A" BlurRadius="12" ShadowDepth="3" Opacity="0.17"/></Border.Effect>
+                            <ScrollViewer MaxHeight="260" Margin="4"><ItemsPresenter/></ScrollViewer>
+                        </Border>
+                    </Popup>
+                </Grid>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Shell" Property="BorderBrush" Value="#287C83"/></Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style TargetType="ContentControl" x:Key="Card">
+            <Setter Property="Background" Value="#FFFEFA"/>
+            <Setter Property="BorderBrush" Value="#E6E6DD"/><Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="24"/><Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="ContentControl">
+                    <Grid>
+                        <Border Background="{TemplateBinding Background}" CornerRadius="21">
+                            <Border.Effect><DropShadowEffect Color="#64746D" BlurRadius="18" ShadowDepth="4" Opacity="0.075"/></Border.Effect>
+                        </Border>
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="21"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </Grid>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="10,8"/><Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+                <Border x:Name="Row" Background="Transparent" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                </Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="Background" Value="#EDF3EE"/></Trigger>
+                    <Trigger Property="IsSelected" Value="True"><Setter TargetName="Row" Property="Background" Value="#DCECE7"/><Setter Property="Foreground" Value="#174D54"/></Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="SectionTitle">
+            <Setter Property="FontFamily" Value="Georgia"/><Setter Property="FontSize" Value="23"/>
+            <Setter Property="Foreground" Value="#1A2929"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="Help">
+            <Setter Property="Foreground" Value="#657370"/><Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontSize" Value="13"/><Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="Label">
+            <Setter Property="Foreground" Value="#1A2929"/><Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,4,0,6"/>
+        </Style>
+    </Window.Resources>
+    <Grid ClipToBounds="True" Background="#F3F1EA">
+        <Ellipse Width="780" Height="650" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-330,-260,0" IsHitTestVisible="False">
+            <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#A5D6D0" Offset="0"/><GradientStop Color="#00A5D6D0" Offset="1"/></RadialGradientBrush></Ellipse.Fill>
+        </Ellipse>
+        <Ellipse Width="580" Height="480" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-260,0,0,-290" IsHitTestVisible="False">
+            <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#E5C3AC" Offset="0"/><GradientStop Color="#00E5C3AC" Offset="1"/></RadialGradientBrush></Ellipse.Fill>
+        </Ellipse>
+        <Rectangle Fill="{StaticResource Grain}" IsHitTestVisible="False"/>
+        <Border Height="96" VerticalAlignment="Top" Background="Transparent" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"/>
+    <Grid Margin="28,14,28,28">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Grid x:Name="HeaderRow" Margin="0,0,-14,20" Background="Transparent" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="126"/></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="ParentControl" FontFamily="Georgia" FontSize="37" Foreground="{StaticResource Ink}"/>
+                <TextBlock Text="Управление временем компьютеров в локальной сети" Foreground="{StaticResource Muted}" Margin="0,4,0,0"/>
+            </StackPanel>
+            <Border Grid.Column="1" Background="#E7EEEA" BorderBrush="#D7E4DE" BorderThickness="1" CornerRadius="13"
+                    Padding="13,7" VerticalAlignment="Center" Margin="0,0,10,0">
+                <TextBlock x:Name="OverallText" Foreground="#275A60" FontWeight="SemiBold"/>
+            </Border>
+            <Border Grid.Column="2" Background="#F5F8F3" BorderBrush="#E1E9E2" BorderThickness="1" CornerRadius="16" Padding="3" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Hidden"/>
+                        <Style.Triggers><DataTrigger Binding="{Binding IsMouseOver, ElementName=HeaderRow}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel Orientation="Horizontal">
+                <Button Style="{StaticResource WindowAction}" ToolTip="Свернуть" Click="Minimize_Click"><Rectangle Width="14" Height="3" RadiusX="1.5" RadiusY="1.5" Fill="#225B62"/></Button>
+                <Button Style="{StaticResource WindowAction}" ToolTip="Развернуть или восстановить" Click="Maximize_Click"><Rectangle Width="13" Height="12" RadiusX="1.5" RadiusY="1.5" Stroke="#225B62" StrokeThickness="2.4"/></Button>
+                <Button Style="{StaticResource WindowAction}" ToolTip="Свернуть в трей" Click="Close_Click" Background="#F1E7E3" BorderBrush="#EAD8D1" Foreground="#93564E"><Path Data="M 1,1 L 13,13 M 13,1 L 1,13" Stroke="#93564E" StrokeThickness="2.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="14" Height="14"/></Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="305"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" PreviewMouseWheel="Panel_PreviewMouseWheel" ScrollChanged="Panel_ScrollChanged">
+                <StackPanel>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Мои компьютеры" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Выберите компьютер, чтобы управлять им." Style="{StaticResource Help}"/>
+                            <TextBlock x:Name="NoClientsText" Text="Пока ни одного компьютера. Подключите первый ниже." Style="{StaticResource Help}"/>
+                            <ListBox x:Name="ClientsList" MinHeight="48" MaxHeight="210" SelectionChanged="ClientsList_SelectionChanged" DisplayMemberPath="Name"
+                                     BorderThickness="0" Background="Transparent" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Подключить компьютер" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Перенесите IP и ключ из Client. Если адрес уже известен, поиск не нужен — нажмите «Подключить компьютер»." Style="{StaticResource Help}"/>
+                            <TextBlock Text="Название" Style="{StaticResource Label}"/>
+                            <TextBox x:Name="NameInput" Text="Клиент" ToolTip="Например: Компьютер сына"/>
+                            <TextBlock Text="Как вы назовёте этот ПК в списке." Style="{StaticResource Help}"/>
+                            <TextBlock Text="IP-адрес клиента" Style="{StaticResource Label}"/>
+                            <TextBox x:Name="HostInput" ToolTip="Например: 192.168.1.24"/>
+                            <TextBlock Text="Показан в окне Client после установки." Style="{StaticResource Help}"/>
+                            <TextBlock Text="Ключ подключения" Style="{StaticResource Label}"/>
+                            <TextBox x:Name="KeyInput" ToolTip="Нажмите «Копировать ключ» в Client"/>
+                            <TextBlock Text="Скопируйте из Client. Он нужен для защищённой связи." Style="{StaticResource Help}"/>
+                            <Button x:Name="PairingSearchButton" Content="Найти адрес по ключу" Click="FindByKey_Click" Style="{StaticResource SoftButton}" Margin="0,0,0,4"/>
+                            <TextBlock x:Name="PairingSearchText" Text="Поиск доступен после установки Client, даже до включения блокировки." Style="{StaticResource Help}"/>
+                            <Button Content="Подключить компьютер" Click="AddClient_Click" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Приложение" Style="{StaticResource SectionTitle}"/>
+                            <Button x:Name="AutostartButton" Click="Autostart_Click" Style="{StaticResource SoftButton}" Margin="0,0,0,0"/>
+                            <TextBlock Text="Автозапуск открывает Admin при входе в Windows. Клиент работает независимо." Style="{StaticResource Help}" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </ContentControl>
+                </StackPanel>
+            </ScrollViewer>
+            <ContentControl x:Name="EmptyState" Grid.Column="2" Style="{StaticResource Card}" Padding="44" VerticalAlignment="Top" MaxWidth="880">
+                <StackPanel>
+                    <TextBlock Text="Начните с подключения" FontFamily="Georgia" FontSize="29" Foreground="{StaticResource Ink}" Margin="0,0,0,14"/>
+                    <TextBlock Text="1. На другом компьютере установите Client. Служба запустится для поиска без блокировки." Style="{StaticResource Help}" FontSize="15"/>
+                    <TextBlock Text="2. Перенесите ключ и IP-адрес в поля слева. Адрес можно найти по ключу, когда служба Client запущена." Style="{StaticResource Help}" FontSize="15"/>
+                    <TextBlock Text="3. Подключите компьютер, задайте время и включите защиту кнопкой в Client." Style="{StaticResource Help}" FontSize="15"/>
+                    <TextBlock Text="Если клиент сейчас выключен, ваши команды сохранятся в очереди и отправятся при следующем подключении." Style="{StaticResource Help}" Margin="0,14,0,0"/>
+                </StackPanel>
+            </ContentControl>
+            <ScrollViewer x:Name="DetailsPanel" Grid.Column="2" VerticalScrollBarVisibility="Auto" Visibility="Collapsed" PreviewMouseWheel="Panel_PreviewMouseWheel" ScrollChanged="Panel_ScrollChanged">
+                <StackPanel MaxWidth="880" HorizontalAlignment="Center">
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Состояние компьютера" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock x:Name="ConnectionText" TextWrapping="Wrap" Foreground="{StaticResource Muted}"/>
+                            <TextBlock x:Name="ClientAddressText" Foreground="{StaticResource Muted}" Margin="0,6,0,0"/>
+                            <TextBlock x:Name="BalanceText" FontSize="20" FontWeight="SemiBold" Foreground="#225B62" Margin="0,12,0,14" TextWrapping="Wrap"/>
+                            <WrapPanel>
+                                <Button Content="Проверить связь сейчас" Click="Refresh_Click" Style="{StaticResource SoftButton}"/>
+                                <Button x:Name="FindClientButton" Content="Найти ПК снова" Click="FindClient_Click"/>
+                            </WrapPanel>
+                            <TextBlock x:Name="DiscoveryText" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,3,0,12"/>
+                            <TextBlock Text="Адрес вручную (если поиск не сработал)" Style="{StaticResource Label}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="ExistingHostInput" Width="220"/>
+                                <Button Content="Сохранить адрес" Click="SaveHost_Click" Margin="10,0,0,8" Style="{StaticResource SoftButton}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl x:Name="TimeBankCard" Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Банк времени" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Остаток хранится на клиенте. Если время закончилось, новые минуты ждут нажатия «Продолжить работу» на Client." Style="{StaticResource Help}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,1,0,13">
+                                <RadioButton x:Name="AddTimeMode" GroupName="BankAction" Content="Добавить"
+                                             Style="{StaticResource TimeModeOption}" IsChecked="True"
+                                             Checked="TimeMode_Checked" Margin="0,0,8,0"/>
+                                <RadioButton x:Name="SubtractTimeMode" GroupName="BankAction" Content="Уменьшить от остатка"
+                                             Style="{StaticResource TimeModeOption}" Tag="Subtract"
+                                             Checked="TimeMode_Checked"/>
+                            </StackPanel>
+                            <TextBlock x:Name="MinutesCaption" Text="Сколько минут добавить" Style="{StaticResource Label}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="MinutesInput" Width="130" Text="60"/>
+                                <Button x:Name="SubmitTimeButton" Content="Добавить к остатку" Click="AddTime_Click" Margin="8,0,0,8"/>
+                            </StackPanel>
+                            <TextBlock Text="Или выберите от 1 до 24 часов:" Style="{StaticResource Help}" Margin="0,8,0,5"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Slider x:Name="HoursSlider" Style="{StaticResource TimeSlider}" Minimum="1" Maximum="24" Value="1" TickFrequency="1" IsSnapToTickEnabled="True" Width="270" ValueChanged="HoursSlider_ValueChanged"/>
+                                <Border Background="#E7EEEA" CornerRadius="10" Padding="12,6" Margin="14,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock x:Name="SliderText" Text="1 ч = 60 мин" Foreground="#225B62" FontWeight="SemiBold"/>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock x:Name="TimeActionHelp" Text="Ползунок заполняет поле минут. При нулевом остатке время останется на паузе до нажатия «Продолжить работу»." Style="{StaticResource Help}" Margin="0,8,0,0"/>
+                            <TextBlock Text="Предупреждение перед окончанием" Style="{StaticResource Label}" Margin="0,14,0,6"/>
+                            <TextBlock Text="Client покажет уведомление, когда до конца банка останется указанное количество минут. 0 выключает предупреждение." Style="{StaticResource Help}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="WarningMinutesInput" Width="130" Text="10"/>
+                                <Button Content="Сохранить порог" Click="Warning_Click" Margin="8,0,0,8"/>
+                            </StackPanel>
+                            <TextBlock x:Name="WarningStatusText" Style="{StaticResource Help}"/>
+                            <TextBlock Text="Ручное управление" Style="{StaticResource Label}" Margin="0,14,0,8"/>
+                            <WrapPanel>
+                                <Button Content="Блокировать сейчас" Click="Block_Click" Style="{StaticResource DangerButton}"/>
+                                <Button Content="Разблокировать" Click="Unblock_Click"/>
+                                <Button Content="Вернуть автоматический режим" Click="Auto_Click" Style="{StaticResource SoftButton}"/>
+                            </WrapPanel>
+                            <TextBlock Text="Ручной режим действует до выбора другого режима. Автоматический режим снова учитывает банк и расписание." Style="{StaticResource Help}"/>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Расписание доступа" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Укажите дни и интервалы, когда разрешено тратить минуты банка. Без расписания доступ возможен в любое время, пока есть минуты." Style="{StaticResource Help}"/>
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="145"/><ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="92"/><ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="92"/><ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="44"/></Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="День недели" Style="{StaticResource Label}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="С" Style="{StaticResource Label}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="4" Text="До" Style="{StaticResource Label}"/>
+                                <ComboBox x:Name="DayCombo" Grid.Row="1" Grid.Column="0" SelectedIndex="0"
+                                          Height="44" Padding="9,7" Margin="0">
+                                    <ComboBoxItem Content="Понедельник"/><ComboBoxItem Content="Вторник"/><ComboBoxItem Content="Среда"/>
+                                    <ComboBoxItem Content="Четверг"/><ComboBoxItem Content="Пятница"/><ComboBoxItem Content="Суббота"/><ComboBoxItem Content="Воскресенье"/>
+                                </ComboBox>
+                                <TextBox x:Name="StartTimeInput" Grid.Row="1" Grid.Column="2" Text="09:00"
+                                         Height="44" Padding="8,3" Margin="0"/>
+                                <TextBox x:Name="EndTimeInput" Grid.Row="1" Grid.Column="4" Text="19:00"
+                                         Height="44" Padding="8,3" Margin="0"/>
+                                <Button Grid.Row="1" Grid.Column="6" Content="Добавить интервал" Click="AddWindow_Click"
+                                        Height="44" FontSize="13" Padding="7,7" Margin="0"/>
+                            </Grid>
+                            <TextBlock Text="Подготовленные интервалы" Style="{StaticResource Label}" Margin="0,12,0,5"/>
+                            <Border BorderBrush="#D3DCDA" BorderThickness="1" CornerRadius="10" Padding="8">
+                                <ListBox x:Name="ScheduleList" MinHeight="46" MaxHeight="140" BorderThickness="0" Background="Transparent"/>
+                            </Border>
+                            <Grid Margin="0,12,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Content="Удалить выбранный" Click="RemoveWindow_Click"
+                                        Style="{StaticResource SoftButton}" Height="44" FontSize="12.5" Padding="7,8" Margin="0"/>
+                                <Button Grid.Column="2" Content="Сохранить расписание" Click="Schedule_Click"
+                                        Height="44" FontSize="12.5" Padding="7,8" Margin="0"/>
+                                <Button Grid.Column="4" Content="Разрешить любое время" Click="ClearSchedule_Click"
+                                        Style="{StaticResource SoftButton}" Height="44" FontSize="12.5" Padding="7,8" Margin="0"/>
+                            </Grid>
+                            <TextBlock Text="Изменения вступят в силу после доставки команды клиенту." Style="{StaticResource Help}"/>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Правила получения минут" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Напишите квоты и условия для этого ПК. Поддерживаются заголовки #, списки -, выделение **жирным** и *курсивом*. После отправки текст хранится на Client и виден на экране блокировки."
+                                       Style="{StaticResource Help}"/>
+                            <TextBox x:Name="RulesInput" Height="210" MaxLength="12000" AcceptsReturn="True"
+                                     TextWrapping="Wrap" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"
+                                     FontFamily="Consolas" FontSize="14" TextChanged="RulesInput_TextChanged"/>
+                            <WrapPanel Margin="0,6,0,0">
+                                <Button Content="Сохранить и отправить" Click="RulesSave_Click"/>
+                                <Button Content="Вернуть сохранённый текст" Click="RulesReset_Click" Style="{StaticResource SoftButton}"/>
+                            </WrapPanel>
+                            <TextBlock x:Name="RulesStatusText" Style="{StaticResource Help}"/>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Промокод" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Создайте один или несколько кодов. Остаток вводов обновляется после связи с Client. Исчерпанные коды удаляются на клиенте через 24 часа." Style="{StaticResource Help}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel Width="140" Margin="0,0,12,0"><TextBlock Text="Минут за ввод" Style="{StaticResource Label}"/><TextBox x:Name="PromoMinutesInput" Text="30"/></StackPanel>
+                                <StackPanel Width="140" Margin="0,0,12,0"><TextBlock Text="Вводов на код" Style="{StaticResource Label}"/><TextBox x:Name="PromoUsesInput" Text="1"/></StackPanel>
+                                <StackPanel Width="140"><TextBlock Text="Сколько кодов" Style="{StaticResource Label}"/><TextBox x:Name="PromoCountInput" Text="1"/></StackPanel>
+                            </StackPanel>
+                            <WrapPanel Margin="0,6,0,0">
+                                <Button Content="Создать и отправить" Click="Promo_Click"/>
+                                <Button x:Name="CopyPromoButton" Content="Копировать выбранный" Click="CopyPromo_Click" Style="{StaticResource SoftButton}"/>
+                                <Button x:Name="CopyAllPromoButton" Content="Копировать все коды" Click="CopyAllPromos_Click" Style="{StaticResource SoftButton}"/>
+                                <Button x:Name="DeletePromoButton" Content="Удалить выбранные" Click="DeletePromos_Click" Style="{StaticResource DangerButton}"/>
+                                <Button x:Name="DeleteUnusedPromoButton" Content="Удалить все без вводов" Click="DeleteUnusedPromos_Click" Style="{StaticResource SoftButton}"/>
+                            </WrapPanel>
+                            <TextBlock Text="Для нескольких кодов используйте Ctrl или Shift. Удаление с клиента выполняется после доставки команды." Style="{StaticResource Help}" Margin="0,3,0,0"/>
+                            <TextBlock x:Name="PromoSummaryText" Style="{StaticResource Help}" Margin="0,4,0,8"/>
+                            <Border BorderBrush="#D3DCDA" BorderThickness="1" CornerRadius="12" Padding="5">
+                                <ListBox x:Name="PromoList" SelectionMode="Extended" MinHeight="70" MaxHeight="230" BorderThickness="0" Background="Transparent" SelectionChanged="PromoList_SelectionChanged">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="2">
+                                                <TextBlock Text="{Binding CodeLine}" FontFamily="Consolas" FontSize="15" FontWeight="SemiBold" Foreground="#225B62"/>
+                                                <TextBlock Text="{Binding StatusLine}" FontSize="12" Foreground="#657370" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                            <TextBlock x:Name="PromoResult" TextWrapping="Wrap" Foreground="#225B62" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Локальный вход администратора" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="На экране блокировки значок человека открывает технический доступ на 30 минут. В это время минуты банка не тратятся. Начальный пароль — 1234; смените его после подключения."
+                                       Style="{StaticResource Help}"/>
+                            <TextBlock Text="Новый пароль (4–64 символа)" Style="{StaticResource Label}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <PasswordBox x:Name="MaintenancePasswordInput" Width="230" MaxLength="64"/>
+                                <Button Content="Сменить пароль" Click="ChangeMaintenancePassword_Click" Margin="10,0,0,8"/>
+                            </StackPanel>
+                            <TextBlock x:Name="MaintenancePasswordStatus" Style="{StaticResource Help}"/>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Экран блокировки" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Добавьте до 8 фотографий JPEG или PNG (до 3 МБ каждая, до 16 МБ вместе). При каждом новом появлении экрана блокировки Client случайно выбирает один фон." Style="{StaticResource Help}"/>
+                            <WrapPanel Margin="0,0,0,7">
+                                <Button Content="Добавить фотографии" Click="Background_Click"/>
+                                <Button Content="Удалить выбранные" Click="DeleteBackgrounds_Click"
+                                        Style="{StaticResource SoftButton}"/>
+                            </WrapPanel>
+                            <TextBlock x:Name="BackgroundSummaryText" Style="{StaticResource Help}"/>
+                            <Border BorderBrush="#D3DCDA" BorderThickness="1" CornerRadius="14" Padding="7" Margin="0,8,0,0">
+                                <ListBox x:Name="BackgroundList" SelectionMode="Extended" Height="181"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                         ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                         ScrollViewer.CanContentScroll="False"
+                                         BorderThickness="0" Background="Transparent">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="180" Margin="3" Padding="7" BorderBrush="#DBE5DC"
+                                                    BorderThickness="1" CornerRadius="11" Background="#F8FAF6">
+                                                <StackPanel>
+                                                    <Border Width="164" Height="94" CornerRadius="7" ClipToBounds="True" Background="#E6EEE8">
+                                                        <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#1A2929"
+                                                               TextTrimming="CharacterEllipsis" Margin="0,7,0,0"/>
+                                                    <TextBlock Text="{Binding Status}" FontSize="11" Foreground="#657370"
+                                                               TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                            <TextBlock Text="Для выбора нескольких фотографий используйте Ctrl или Shift. Изменения доставятся, когда клиент появится в сети." Style="{StaticResource Help}" Margin="0,7,0,0"/>
+                        </StackPanel>
+                    </ContentControl>
+                    <ContentControl Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Очередь и журнал" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock x:Name="QueueText" Margin="0,0,0,8"/>
+                            <TextBlock Text="Команды в очереди уйдут, когда оба ПК будут включены и Admin сможет связаться с клиентом." Style="{StaticResource Help}"/>
+                            <Border BorderBrush="#D3DCDA" BorderThickness="1" CornerRadius="10" Padding="8">
+                                <ListBox x:Name="LogList" Height="170" BorderThickness="0" Background="Transparent" FontFamily="Consolas" FontSize="12"/>
+                            </Border>
+                        </StackPanel>
+                    </ContentControl>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+    </Grid>
+</Window>

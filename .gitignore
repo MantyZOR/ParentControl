@@ -1,0 +1,23 @@
+# Build output and local tooling
+**/bin/
+**/obj/
+dist/
+.testdata/
+.vs/
+*.user
+*.suo
+
+# Local configuration, runtime data and credentials
+.codex/
+.agents/
+.aws/
+.env
+.env.*
+!.env.example
+*.log
+*.dat
+*.dat.tmp
+*.pfx
+*.p12
+*.pem
+*.key

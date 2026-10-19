@@ -1,0 +1,9 @@
+<Application x:Class="ParentControl.Admin.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ParentControl.Admin"
+             >
+    <Application.Resources>
+
+    </Application.Resources>
+</Application>

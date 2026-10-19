@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="ParentControl.Admin/ParentControl.Admin.csproj" />
+  <Project Path="ParentControl.Client/ParentControl.Client.csproj" />
+  <Project Path="ParentControl.ClientApp/ParentControl.ClientApp.csproj" />
+  <Project Path="ParentControl.Core/ParentControl.Core.csproj" />
+  <Project Path="ParentControl.Overlay/ParentControl.Overlay.csproj" />
+  <Project Path="ParentControl.Smoke/ParentControl.Smoke.csproj" />
+</Solution>
