@@ -4,6 +4,15 @@ using System.Text;
 using ParentControl.Core;
 using ParentControl.Admin;
 
+var previewOnly = args.Contains("--preview-only");
+if (previewOnly)
+{
+    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PARENTCONTROL_UI_PREVIEW")))
+        throw new ArgumentException("Set PARENTCONTROL_UI_PREVIEW to an output directory for --preview-only.");
+    // Public previews must never load the user's actual Admin data or contact managed computers.
+    Environment.SetEnvironmentVariable("PARENTCONTROL_TEST_DATA",
+        Path.Combine(Path.GetTempPath(), "ParentControlPreview-" + Guid.NewGuid().ToString("N")));
+}
 if (AdminState.Load().Clients is null) throw new Exception("Admin initial state failed");
 Exception? uiFailure = null;
 var uiThread = new Thread(() =>
@@ -49,15 +58,26 @@ var uiThread = new Thread(() =>
             {
                 previewState.Clients.Add(new ManagedClient
                 {
-                    Name = "Рабочий ПК", Host = "192.168.1.24",
+                    Name = "Семейный ПК", Host = "192.0.2.24", Key = "preview-only",
                     LastSeenUtc = DateTime.UtcNow,
-                    LastStatus = new ClientStatus { BalanceSeconds = 140 * 60, Allowed = true }
+                    LastStatus = new ClientStatus
+                    {
+                        Machine = "DESKTOP-DEMO", BalanceSeconds = 90 * 60,
+                        ProtectionArmed = true, UserPaused = true, Allowed = false,
+                        WarningMinutes = 10, PromoTrackingVersion = 2,
+                        SupportsRulesMarkdown = true, SupportsBalanceSubtraction = true,
+                        SupportsBackgroundGallery = true
+                    }
                 });
+                var onlineField = typeof(ParentControl.Admin.MainWindow).GetField("online",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+                ((HashSet<string>)onlineField.GetValue(adminWindow)!).Add("preview-only");
                 var clientsList = (System.Windows.Controls.ListBox)adminWindow.FindName("ClientsList");
                 clientsList.Items.Refresh();
                 clientsList.SelectedIndex = 0;
             }
             SavePreview(adminWindow, Path.Combine(previewDir, "admin-details.png"), 1180, 820);
+            SavePreview(adminWindow, Path.Combine(previewDir, "admin-showcase.png"), 1280, 900);
             var detailsPreview = (System.Windows.Controls.ScrollViewer)adminWindow.FindName("DetailsPanel");
             subtractMode.IsChecked = true;
             detailsPreview.ScrollToVerticalOffset(440);
@@ -103,7 +123,9 @@ var uiThread = new Thread(() =>
             ((System.Windows.Controls.TextBlock)lockWindow.FindName("TitleText")).Text = "Минуты сохранены";
             ((System.Windows.Controls.TextBlock)lockWindow.FindName("DescriptionText")).Text = "Банк времени остановлен. Нажмите «Продолжить работу», когда будете готовы.";
             ((System.Windows.Controls.Button)lockWindow.FindName("ResumeButton")).Visibility = System.Windows.Visibility.Visible;
+            ((System.Windows.Controls.TextBlock)lockWindow.FindName("RemainingText")).Text = "90 мин";
             SavePreview(lockWindow, Path.Combine(previewDir, "lock-paused.png"), 1920, 1200);
+            SavePreview(lockWindow, Path.Combine(previewDir, "lock-showcase.png"), 1280, 900);
             var setRules = typeof(ParentControl.Overlay.MainWindow).GetMethod("SetRulesMarkdown",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
             setRules.Invoke(lockWindow, ["# Как заработать минуты\n\n- Уроки: **30 минут**\n- Чтение: *15 минут*\n\n> Согласуйте результат с администратором."]);
@@ -299,7 +321,7 @@ if (!PromoCatalog.Prune(legacyCatalog, exhaustedAt) ||
 Console.WriteLine("PASS: promo lifecycle and permanent Admin cleanup after 24 hours, including offline revocations");
 
 var root = Environment.GetEnvironmentVariable("PARENTCONTROL_TEST_DATA");
-if (root == null) return;
+if (root == null || previewOnly) return;
 var key = LocalSecret.Unprotect(File.ReadAllBytes(Path.Combine(root, "key.dat")));
 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
 async Task<T> Post<T>(string path, Command? command = null)
